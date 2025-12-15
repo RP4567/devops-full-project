@@ -1,22 +1,33 @@
 trigger:
 - main
 
+resources:
+- repo: self
+
 pool:
-  vmImage: ubuntu-latest
+  name: self-hosted-pool
+
+variables:
+  imageName: devops-app
+  acrLoginServer: rp4567acr.azurecr.io
+  kubernetesNamespace: default
 
 stages:
 - stage: Deploy
   displayName: Deploy to AKS
   jobs:
   - job: DeployApp
-    displayName: Apply Kubernetes manifests
+    displayName: Deploy Application
     steps:
+
+    - checkout: self
+
     - task: KubernetesManifest@1
-      displayName: Deploy application to AKS
+      displayName: Deploy to AKS
       inputs:
         action: deploy
         kubernetesServiceConnection: aks-connection
-        namespace: default
+        namespace: $(kubernetesNamespace)
         manifests: |
           k8s/deployment.yaml
           k8s/service.yaml
