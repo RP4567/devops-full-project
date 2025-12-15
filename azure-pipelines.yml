@@ -8,8 +8,6 @@ pool:
   name: self-hosted-pool
 
 variables:
-  imageName: devops-app
-  acrLoginServer: rp4567acr.azurecr.io
   kubernetesNamespace: default
 
 stages:
@@ -17,11 +15,24 @@ stages:
   displayName: Deploy to AKS
   jobs:
   - job: DeployApp
-    displayName: Deploy Application
+    displayName: Deploy Application to AKS
     steps:
 
+    # 1️⃣ Checkout source code
     - checkout: self
 
+    # 2️⃣ Debug step (VERY IMPORTANT for learning)
+    - script: |
+        echo "Working directory:"
+        echo $(System.DefaultWorkingDirectory)
+        echo "Listing files:"
+        dir $(System.DefaultWorkingDirectory)
+        echo "Listing k8s folder:"
+        dir $(System.DefaultWorkingDirectory)\k8s
+      displayName: Debug: show repo structure
+      condition: succeeded()
+
+    # 3️⃣ Deploy Kubernetes manifests
     - task: KubernetesManifest@1
       displayName: Deploy to AKS
       inputs:
@@ -29,5 +40,5 @@ stages:
         kubernetesServiceConnection: aks-connection
         namespace: $(kubernetesNamespace)
         manifests: |
-          k8s/deployment.yaml
-          k8s/service.yaml
+          $(System.DefaultWorkingDirectory)/k8s/deployment.yaml
+          $(System.DefaultWorkingDirectory)/k8s/service.yaml
