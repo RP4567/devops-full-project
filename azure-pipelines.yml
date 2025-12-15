@@ -1,44 +1,34 @@
 trigger:
 - main
 
-resources:
-- repo: self
-
 pool:
   name: self-hosted-pool
-
-variables:
-  kubernetesNamespace: default
 
 stages:
 - stage: Deploy
   displayName: Deploy to AKS
   jobs:
   - job: DeployApp
-    displayName: Deploy Application to AKS
+    displayName: Deploy Application
     steps:
 
-    # 1️⃣ Checkout source code
     - checkout: self
 
-    # 2️⃣ Debug step (VERY IMPORTANT for learning)
     - script: |
-        echo "Working directory:"
+        echo "System.DefaultWorkingDirectory:"
         echo $(System.DefaultWorkingDirectory)
-        echo "Listing files:"
+        echo "Listing root directory:"
         dir $(System.DefaultWorkingDirectory)
-        echo "Listing k8s folder:"
+        echo "Listing k8s directory:"
         dir $(System.DefaultWorkingDirectory)\k8s
-      displayName: Debug: show repo structure
-      condition: succeeded()
+      displayName: Debug repo structure
 
-    # 3️⃣ Deploy Kubernetes manifests
     - task: KubernetesManifest@1
       displayName: Deploy to AKS
       inputs:
         action: deploy
         kubernetesServiceConnection: aks-connection
-        namespace: $(kubernetesNamespace)
+        namespace: default
         manifests: |
           $(System.DefaultWorkingDirectory)/k8s/deployment.yaml
           $(System.DefaultWorkingDirectory)/k8s/service.yaml
