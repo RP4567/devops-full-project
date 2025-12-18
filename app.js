@@ -12,7 +12,7 @@ const counter = new client.Counter({
 
 app.get("/", (req, res) => {
   counter.inc();
-  res.send("Hello DevOps App v2 🚀");
+  res.send("Hello DevOps App Testing v2 🚀");
 });
 
 app.get("/metrics", async (req, res) => {
